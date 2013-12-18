@@ -1,0 +1,5 @@
+This is a QT project which plot the 3D-2x2Channel-State figure from the data received from the socket.
+All the data is from the local socket which is in the driver:3test_.cpp.
+All files above is for the project of Prof.Ling Xiang at Room-610.
+
+Edited by Meng Yang
