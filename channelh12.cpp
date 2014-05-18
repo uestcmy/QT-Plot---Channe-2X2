@@ -46,7 +46,7 @@ ChannelH12::ChannelH12(QWidget *parent) :
     sockser_chl2=socket(AF_INET,SOCK_DGRAM,0);
     addrSrv_chl2.sin_addr.s_addr=htonl(INADDR_ANY);
     addrSrv_chl2.sin_family=AF_INET;
-    addrSrv_chl2.sin_port=htons(7002);//server : receive port number
+    addrSrv_chl2.sin_port=htons(7004);//server : receive port number
     bind(sockser_chl2,(sockaddr*)&addrSrv_chl2,sizeof(sockaddr));
 
 #ifdef TEST_SOCKET
@@ -113,18 +113,18 @@ void ChannelH12::paintGL()
 }
 void ChannelH12::unitmeshplot(int i,int j,double xstart,double zstart,double xstep,double zstep,int dx,int dz){
 
-    double c = *(pdata+j*300+i*dx);
+    double c = *(pdata+j*100+i*dx);
     c -= -3;
     c /= 6;
 
-   double d = (double)i/ 300.0;
+   double d = (double)i/ 100.0;
    double e = j/20.0;
 
    if( j <= 0){
         glColor3f(1,1,1);
         glBegin(GL_LINE);
-        glVertex3f(xstart-i*xstep,*(pdata+j*300+i*dx),zstart-j*zstep);
-        glVertex3f(xstart-(i+1)*xstep,*(pdata+j*300+(i+1)*dx),zstart-j*zstep);
+        glVertex3f(xstart-i*xstep,*(pdata+j*100+i*dx),zstart-j*zstep);
+        glVertex3f(xstart-(i+1)*xstep,*(pdata+j*100+(i+1)*dx),zstart-j*zstep);
         glEnd();
         glColor3f(1,1,1);
    }
@@ -134,10 +134,10 @@ void ChannelH12::unitmeshplot(int i,int j,double xstart,double zstart,double xst
         glColor3f(e,c/2,d);
    }
     glBegin(GL_QUADS);
-    glVertex3f(xstart-i*xstep,*(pdata+j*300+i*dx),zstart-j*zstep);
-    glVertex3f(xstart-(i+1)*xstep,*(pdata+j*300+(i+1)*dx),zstart-j*zstep);
-    glVertex3f(xstart-(i+1)*xstep,*(pdata+(j+1)*300+(i+1)*dx),zstart-(j+1)*zstep);
-    glVertex3f(xstart-i*xstep,*(pdata+(j+1)*300+(i)*dx),zstart-(j+1)*zstep);
+    glVertex3f(xstart-i*xstep,*(pdata+j*100+i*dx),zstart-j*zstep);
+    glVertex3f(xstart-(i+1)*xstep,*(pdata+j*100+(i+1)*dx),zstart-j*zstep);
+    glVertex3f(xstart-(i+1)*xstep,*(pdata+(j+1)*100+(i+1)*dx),zstart-(j+1)*zstep);
+    glVertex3f(xstart-i*xstep,*(pdata+(j+1)*100+(i)*dx),zstart-(j+1)*zstep);
     glEnd();
 
 /*
@@ -159,16 +159,16 @@ void ChannelH12::unitmeshplot(int i,int j,double xstart,double zstart,double xst
     */
 }
 void ChannelH12::meshplot(int jstart){
-    int m = 300;//x
+    int m = 100;//x
     int n = 29;//z
     double xstep = 6.0/m;
     double zstep = 8.0/n;
-    double dx = 300/m;//sample point
+    double dx = 100/m;//sample point
     double xstart = 2;//decrease
     double zstart = 2;//decrease
     //pdata = pdata + jstart * 300;
     //QDebug() << zstart <<endl();
-    if( pdata - pdata2 > 300*700){
+    if( pdata - pdata2 > 100*700){
         pdata = pdata2;
     }
     //qDebug()<< pdata2-pdata << endl;
@@ -466,9 +466,9 @@ int ChannelH12::hex2int(char a,char b,char c,char d){
 
 
 void ChannelH12::rendermap(char *buff){
-    int position = 12; // avoid the header a0aa 3c20
-    for( int i = 0 ; i < 1800 ; i++){
-        for( int j = 0 ; j <16 ;) {
+    int position = 6; // avoid the header a0aa 3c20
+    for( int i = 0 ; i < 2000 ; i++){
+        for( int j = 0 ; j <8 ;) {
             map1800_2[i][j++] = buff[position++];
             map1800_2[i][j++] = buff[position++];
             position++;//avoid the comma
@@ -476,87 +476,19 @@ void ChannelH12::rendermap(char *buff){
        // position += 24;
     }//for i
    //divide the data into 4 road
-    for( int i = 0 ; i < 1800 ; i++){
+    for( int i = 600 ; i < 1800 ; i++){
         data1_2[i][0]=hex2int(map1800_2[i][0],map1800_2[i][1],map1800_2[i][2],map1800_2[i][3]);
         data1_2[i][1]=hex2int(map1800_2[i][4],map1800_2[i][5],map1800_2[i][6],map1800_2[i][7]);
-        data2_2[i][0]=hex2int(map1800_2[i][8],map1800_2[i][9],map1800_2[i][10],map1800_2[i][11]);
-        data2_2[i][1]=hex2int(map1800_2[i][12],map1800_2[i][13],map1800_2[i][14],map1800_2[i][15]);
-        //qDebug() << data1[i][0] << data1[i][1] <<data2[i][0] <<data2[i][1] <<endl;
+      //qDebug() << data1[i][0] << data1[i][1] <<data2[i][0] <<data2[i][1] <<endl;
     }//for i
-/*
-    if(first1 == 1){
-         first1 = 0;
-         FILE *fp3 = fopen("./pilot/ofdmdata.txt","w");
 
-        for( int i = 0 ; i <1800 ; i++){
-            fprintf(fp3,"%.0lf\t\t%.0lf\t\t%.0lf\t\t%.0lf\n", data1[i][0], data1[i][1], data2[i][0], data2[i][1]);
-        }
-        fclose(fp3);
-     }
-*/
-    // extract the pilot , 4 in sum
-    double pilotH12[100][2] = {0};
-    int cntH12 = 0;
-    for( int i = 0 ; i < 300 ; i++){
-        if(i % 6 == 3){//position for the pilot H12
-            pilotH12[cntH12][0] = data1_2[i][0];
-            pilotH12[cntH12][1] = data1_2[i][1];
-            cntH12 += 2;
-        }//if
-    }
-
-    cntH12 = 1;
-    for( int i = 1200 ; i < 1500 ; i++){
-        if( i % 6 == 0){//position for the pilot H12
-            pilotH12[cntH12][0] = data1_2[i][0];
-            pilotH12[cntH12][1] = data1_2[i][1];
-            cntH12 += 2;
-        }//if
-    }
-
-    //print the pilot H12
-    /*
-    if(first1 == 1){
-         first1 = 0;
-         FILE *fp3 = fopen("./pilot/pilotH12.txt","w");
-
-        for( int i = 0 ; i <100 ; i++){
-            fprintf(fp3,"%.0lf\t\t%.0lf\n",pilotH12[i][0],pilotH12[i][1]);
-        }
-        fclose(fp3);
-     }
-    */
-    double H12[100][2] = {0};
-    double absH12[100] = {0};
-    double absH12_3[300] = {0};
-
-    for( int i = 0 ; i < 100 ; i++ ){
-        H12[i][0] = (pilotH12[i][0]*pilot2[i][0]+pilotH12[i][1]*pilot2[i][1])/(pilot2[i][0]*pilot2[i][0]+pilot2[i][1]*pilot2[i][1]);
-        H12[i][1] = (pilotH12[i][1]*pilot2[i][0]-pilotH12[i][0]*pilot2[i][1])/(pilot2[i][0]*pilot2[i][0]+pilot2[i][1]*pilot2[i][1]);
-        absH12[i] = sqrt(H12[i][0]*H12[i][0] + H12[i][1]*H12[i][1]);
-        absH12_3[i*3] = absH12[i];
-         absH12_3[i*3 + 1 ] = absH12[i];
-          absH12_3[i*3 + 2 ] = absH12[i];
-    }//for i
-/*
-    if(first1 == 1){
-         first1 = 0;
-         FILE *fp3 = fopen("./pilot/H12.txt","w");
-
-        for( int i = 0 ; i <300 ; i++){
-            fprintf(fp3,"%.3lf\t\t%.3lf\t\t\t%.3lf\n",absH12_3[i],absH12_3[i],absH12_3[i]);
-        }
-        fclose(fp3);
-     }
-     */
-     // 300 * 30   wedth * length
     for( int i = 30 ; i >= 1 ; i-- ){
-        for( int j = 0 ; j < 300 ; j++ ){
-            *(pdata+i*300 + j) = *( pdata + (i-1)*300 + j);
+        for( int j = 0 ; j < 100 ; j++ ){
+            *(pdata+i*100 + j) = *( pdata + (i-1)*100 + j);
         }//for j
     }
-    for( int j = 0 ; j < 300 ; j++){
-        *(pdata + j) = absH12_3[j] *5 ;
+    for( int j = 700; j < 800 ; j++){
+        *(pdata + j-700) = sqrt(data1_2[j][0]* data1_2[j][0]+ data1_2[j][1]* data1_2[j][1]    ) /1500;
     }
 
 }
